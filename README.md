@@ -8,42 +8,63 @@
 
 ```mermaid
 classDiagram
-    class Jogo {
+    class User {
         +Long id
-        +String nome
-        +String genero
-        +String desenvolvedora
-        +int anoLancamento
-        +Plataforma plataforma
-    }
-
-    class Plataforma {
-        +Long id
-        +String nome
-        +String fabricante
-        +int anoLancamento
-    }
-
-    class Usuario {
-        +Long id
-        +String nome
+        +String name
         +String email
-        +String senha
-        +List<Jogo> bibliotecaJogos
+        +String password
+        +List<Game> libraryGames
+        +List<Evaluation> evaluations
+        +List<Comment> comments
     }
 
-    class Avaliacao {
+    class Game {
         +Long id
-        +Usuario usuario
-        +Jogo jogo
-        +int nota
-        +String comentario
+        +String name
+        +String genre
+        +String developer
+        +int releaseYear
+        +List<Platform> platforms
+        +List<Comment> comments
+        +List<Evaluation> evaluations
     }
 
-    Jogo --> Plataforma : "pertence a"
-    Usuario --> Jogo : "possui na biblioteca"
-    Avaliacao --> Usuario : "pertence a"
-    Avaliacao --> Jogo : "avaliando"
+    class Platform {
+        +Long id
+        +String name
+        +String manufacturer
+        +int releaseYear
+        +List<Game> games
+    }
+
+    class Evaluation {
+        +Long id
+        +User user
+        +Game game
+        +int nota
+        +LocalDate evaluationDate
+    }
+
+    class Comment {
+        +Long id
+        +User user
+        +Game game
+        +String comment
+        +LocalDate commentDate
+        +Evaluation evaluation
+    }
+
+    %% Relacionamentos organizados
+    User --> Game : "possui na biblioteca"
+    Game --> Platform : "disponível em"
+    Platform --> Game : "suporta"
+    Game --> Comment : "tem comentários"
+    Game --> Evaluation : "tem avaliações"
+    Evaluation --> User : "realizada por"
+    Evaluation --> Game : "avaliando"
+    Comment --> User : "escrito por"
+    Comment --> Game : "sobre"
+    Comment --> Evaluation : "referente a"
 ```
 
 
