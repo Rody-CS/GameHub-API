@@ -14,6 +14,6 @@ public interface CommentRepository extends JpaRepository<Comment,Long>{
 
     Page<Comment> findByUserId(Long id, Pageable pageable);
 
-    Page<Comment> findByContentContaining(String keyword, Pageable pageable);
+    Page<Comment> findByCommentContaining(String keyword, Pageable pageable);
     
 }

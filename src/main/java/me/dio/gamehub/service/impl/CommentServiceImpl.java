@@ -99,7 +99,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional(readOnly = true)
     public Page<Comment> findByKeyword(String keyword, Pageable pageable) {
-        return commentRepository.findByContentContaining(keyword, pageable);
+        return commentRepository.findByCommentContaining(keyword, pageable);
     }
 
     /**

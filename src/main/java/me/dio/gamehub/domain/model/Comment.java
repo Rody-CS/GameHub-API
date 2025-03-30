@@ -10,6 +10,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -21,18 +23,20 @@ public class Comment {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "jogo_id", nullable = false)
+    @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
+    @NotBlank
+    @Size(max = 500)
     @Column(nullable = false, length = 500)
     private String comment;
 
     @Column(nullable = false)
-    private LocalDate commentDate = LocalDate.now(); // Data do comentário
+    private LocalDate commentDate = LocalDate.now();
 
     @OneToOne
     @JoinColumn(name = "evaluation_id", nullable = true)
