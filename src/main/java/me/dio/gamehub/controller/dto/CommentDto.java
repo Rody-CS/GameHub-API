@@ -1,7 +1,6 @@
 package me.dio.gamehub.controller.dto;
 
 import java.time.LocalDate;
-
 import me.dio.gamehub.domain.model.Comment;
 
 public record CommentDto(
@@ -9,8 +8,7 @@ public record CommentDto(
         UserDto user,
         GameDto game,
         String comment,
-        LocalDate commentDate,
-        EvaluationDto evaluation) {
+        LocalDate commentDate) {
 
     /**
      * Construtor baseado na entidade Comment.
@@ -21,8 +19,7 @@ public record CommentDto(
             model.getUser() != null ? new UserDto(model.getUser()) : null,
             model.getGame() != null ? new GameDto(model.getGame()) : null,
             model.getComment(),
-            model.getCommentDate(),
-            model.getEvaluation() != null ? new EvaluationDto(model.getEvaluation()) : null
+            model.getCommentDate() != null ? model.getCommentDate() : LocalDate.now()  // Atribui a data atual se não houver data
         );
     }
 
@@ -35,8 +32,7 @@ public record CommentDto(
         model.setUser(this.user != null ? this.user.toModel() : null);
         model.setGame(this.game != null ? this.game.toModel() : null);
         model.setComment(this.comment);
-        model.setCommentDate(this.commentDate != null ? this.commentDate : LocalDate.now());
-        model.setEvaluation(this.evaluation != null ? this.evaluation.toModel() : null);
+        model.setCommentDate(this.commentDate != null ? this.commentDate : LocalDate.now());  // Define a data atual caso não fornecida
         return model;
     }
 }

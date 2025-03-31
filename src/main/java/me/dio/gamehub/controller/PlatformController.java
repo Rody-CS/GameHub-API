@@ -1,19 +1,18 @@
 package me.dio.gamehub.controller;
 
+import jakarta.validation.Valid;
+import me.dio.gamehub.controller.dto.PlatformDto;
+import me.dio.gamehub.service.PlatformService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import me.dio.gamehub.controller.dto.PlatformDto;
-import me.dio.gamehub.service.PlatformService;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @CrossOrigin
 @RestController
@@ -27,9 +26,10 @@ public record PlatformController(PlatformService platformService) {
             @ApiResponse(responseCode = "200", description = "Operation successful")
     })
     public ResponseEntity<List<PlatformDto>> findAll() {
-        var platforms = platformService.findAll();
-        var platformsDto = platforms.stream().map(PlatformDto::new).collect(Collectors.toList());
-        return ResponseEntity.ok(platformsDto);
+        var platforms = platformService.findAll().stream()
+                .map(PlatformDto::new)
+                .toList();
+        return ResponseEntity.ok(platforms);
     }
 
     @GetMapping("/{id}")
@@ -49,7 +49,7 @@ public record PlatformController(PlatformService platformService) {
             @ApiResponse(responseCode = "201", description = "Platform created successfully"),
             @ApiResponse(responseCode = "422", description = "Invalid platform data provided")
     })
-    public ResponseEntity<PlatformDto> create(@RequestBody PlatformDto platformDto) {
+    public ResponseEntity<PlatformDto> create(@Valid @RequestBody PlatformDto platformDto) {
         var platform = platformService.create(platformDto.toModel());
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -65,7 +65,7 @@ public record PlatformController(PlatformService platformService) {
             @ApiResponse(responseCode = "404", description = "Platform not found"),
             @ApiResponse(responseCode = "422", description = "Invalid platform data provided")
     })
-    public ResponseEntity<PlatformDto> update(@PathVariable Long id, @RequestBody PlatformDto platformDto) {
+    public ResponseEntity<PlatformDto> update(@PathVariable Long id, @Valid @RequestBody PlatformDto platformDto) {
         var platform = platformService.update(id, platformDto.toModel());
         return ResponseEntity.ok(new PlatformDto(platform));
     }

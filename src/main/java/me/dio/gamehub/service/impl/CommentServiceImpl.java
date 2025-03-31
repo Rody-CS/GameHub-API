@@ -2,6 +2,7 @@ package me.dio.gamehub.service.impl;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import me.dio.gamehub.domain.repository.GameRepository;
 import me.dio.gamehub.domain.repository.UserRepository;
 import me.dio.gamehub.service.CommentService;
 import me.dio.gamehub.service.exception.BusinessException;
+import me.dio.gamehub.service.exception.CommentNotFoundException;
 import me.dio.gamehub.service.exception.NotFoundException;
 
 @Service
@@ -25,7 +27,8 @@ public class CommentServiceImpl implements CommentService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
 
-    public CommentServiceImpl(CommentRepository commentRepository, UserRepository userRepository, GameRepository gameRepository) {
+    public CommentServiceImpl(CommentRepository commentRepository, UserRepository userRepository,
+            GameRepository gameRepository) {
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.gameRepository = gameRepository;
@@ -79,11 +82,14 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.save(existingComment);
     }
 
-    @Transactional
     @Override
     public void delete(Long id) {
-        Comment existingComment = findById(id);
-        commentRepository.delete(existingComment);
+        Optional<Comment> comment = commentRepository.findById(id);
+        if (comment.isPresent()) {
+            commentRepository.delete(comment.get()); // Exclui o comentário
+        } else {
+            throw new CommentNotFoundException("Comment not found with ID: " + id); // Lança exceção se não encontrado
+        }
     }
 
     @Transactional(readOnly = true)
@@ -113,6 +119,9 @@ public class CommentServiceImpl implements CommentService {
         if (Objects.isNull(comment.getComment()) || comment.getComment().trim().isEmpty()) {
             throw new BusinessException("O conteúdo do comentário não pode estar vazio.");
         }
+        if (comment.getComment().length() > 500) {
+            throw new BusinessException("O comentário não pode ter mais de 500 caracteres.");
+        }        
         if (Objects.isNull(comment.getUser()) || Objects.isNull(comment.getUser().getId())) {
             throw new BusinessException("O comentário deve estar associado a um usuário válido.");
         }
