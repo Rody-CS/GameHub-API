@@ -8,42 +8,77 @@
 
 ```mermaid
 classDiagram
-    class Jogo {
+    class User {
         +Long id
-        +String nome
-        +String genero
-        +String desenvolvedora
-        +int anoLancamento
-        +Plataforma plataforma
-    }
-
-    class Plataforma {
-        +Long id
-        +String nome
-        +String fabricante
-        +int anoLancamento
-    }
-
-    class Usuario {
-        +Long id
-        +String nome
+        +String name
         +String email
-        +String senha
-        +List<Jogo> bibliotecaJogos
+        +String password
+        +Library library
+        +List<Evaluation> evaluations
+        +List<Comment> comments
     }
 
-    class Avaliacao {
+    class Library {
         +Long id
-        +Usuario usuario
-        +Jogo jogo
-        +int nota
-        +String comentario
+        +User user
+        +List<Game> games
     }
 
-    Jogo --> Plataforma : "pertence a"
-    Usuario --> Jogo : "possui na biblioteca"
-    Avaliacao --> Usuario : "pertence a"
-    Avaliacao --> Jogo : "avaliando"
+    class Game {
+        +Long id
+        +String name
+        +String genre
+        +String developer
+        +int releaseYear
+        +List<Platform> platforms
+        +List<Comment> comments
+        +List<Evaluation> evaluations
+    }
+
+    class Platform {
+        +Long id
+        +String name
+        +String manufacturer
+        +int releaseYear
+        +List<Game> games
+    }
+
+    class Evaluation {
+        +Long id
+        +User user
+        +Game game
+        +int nota
+        +LocalDate evaluationDate
+    }
+
+    class Comment {
+        +Long id
+        +User user
+        +Game game
+        +String comment
+        +LocalDate commentDate
+    }
+
+    class LibraryStatus {
+        <<Enumeration>>
+        JOGANDO
+        FINALIZADO
+        NA_LISTA
+        ABANDONADO
+    }
+
+    %% Relacionamentos organizados
+    User --> Library : "possui uma"
+    Library --> Game : "contém jogos"
+    Game --> Platform : "disponível em"
+    Platform --> Game : "suporta"
+    Game --> Comment : "tem comentários"
+    Game --> Evaluation : "tem avaliações"
+    Evaluation --> User : "realizada por"
+    Evaluation --> Game : "avaliando"
+    Comment --> User : "escrito por"
+    Comment --> Game : "sobre"
+    Library --> LibraryStatus : "tem status"
 ```
 
 
