@@ -13,9 +13,15 @@ classDiagram
         +String name
         +String email
         +String password
-        +List<Game> libraryGames
+        +Library library
         +List<Evaluation> evaluations
         +List<Comment> comments
+    }
+
+    class Library {
+        +Long id
+        +User user
+        +List<Game> games
     }
 
     class Game {
@@ -51,11 +57,19 @@ classDiagram
         +Game game
         +String comment
         +LocalDate commentDate
-        +Evaluation evaluation
+    }
+
+    class LibraryStatus {
+        <<Enumeration>>
+        JOGANDO
+        FINALIZADO
+        NA_LISTA
+        ABANDONADO
     }
 
     %% Relacionamentos organizados
-    User --> Game : "possui na biblioteca"
+    User --> Library : "possui uma"
+    Library --> Game : "contém jogos"
     Game --> Platform : "disponível em"
     Platform --> Game : "suporta"
     Game --> Comment : "tem comentários"
@@ -64,7 +78,7 @@ classDiagram
     Evaluation --> Game : "avaliando"
     Comment --> User : "escrito por"
     Comment --> Game : "sobre"
-    Comment --> Evaluation : "referente a"
+    Library --> LibraryStatus : "tem status"
 ```
 
 
