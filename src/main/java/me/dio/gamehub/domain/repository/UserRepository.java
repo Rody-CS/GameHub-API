@@ -1,13 +1,11 @@
 package me.dio.gamehub.domain.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
 import me.dio.gamehub.domain.model.User;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public interface UserRepository extends JpaRepository<User,Long>{
+public interface UserRepository extends JpaRepository<User, Long> {
 
+    // Métodos específicos podem ser adicionados aqui, se necessário
     boolean existsByEmail(String email);
     
 }

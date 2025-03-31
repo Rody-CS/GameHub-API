@@ -1,6 +1,7 @@
 package me.dio.gamehub.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,7 +47,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Comment findById(Long id) {
         return commentRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Comentário com ID %d não encontrado.".formatted(id)));
+                .orElseThrow(() -> new NotFoundException("Comentário com ID " + id + " não encontrado."));
     }
 
     @Transactional
@@ -58,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
         User user = validateUser(commentToCreate.getUser().getId());
         Game game = validateGame(commentToCreate.getGame().getId());
 
-        // Associação
+        // Associação segura
         commentToCreate.setUser(user);
         commentToCreate.setGame(game);
 
@@ -71,7 +72,7 @@ public class CommentServiceImpl implements CommentService {
         Comment existingComment = findById(id);
         validateComment(commentToUpdate);
 
-        // Atualiza atributos modificáveis
+        // Atualiza apenas os atributos permitidos
         existingComment.setComment(commentToUpdate.getComment());
         existingComment.setCommentDate(commentToUpdate.getCommentDate());
 
@@ -87,14 +88,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Transactional(readOnly = true)
     public Page<Comment> findByGameId(Long gameId, Pageable pageable) {
-        Game game = validateGame(gameId);
-        return commentRepository.findByGameId(game.getId(), pageable);
+        validateGame(gameId);
+        return commentRepository.findByGameId(gameId, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Comment> findByUserId(Long userId, Pageable pageable) {
-        User user = validateUser(userId);
-        return commentRepository.findByUserId(user.getId(), pageable);
+        validateUser(userId);
+        return commentRepository.findByUserId(userId, pageable);
     }
 
     @Transactional(readOnly = true)
@@ -106,13 +107,16 @@ public class CommentServiceImpl implements CommentService {
      * Valida o conteúdo do comentário.
      */
     private void validateComment(Comment comment) {
-        if (comment == null || comment.getComment() == null || comment.getComment().isEmpty()) {
-            throw new BusinessException("O conteúdo do comentário não pode ser vazio.");
+        if (Objects.isNull(comment)) {
+            throw new BusinessException("O comentário não pode ser nulo.");
         }
-        if (comment.getUser() == null || comment.getUser().getId() == null) {
+        if (Objects.isNull(comment.getComment()) || comment.getComment().trim().isEmpty()) {
+            throw new BusinessException("O conteúdo do comentário não pode estar vazio.");
+        }
+        if (Objects.isNull(comment.getUser()) || Objects.isNull(comment.getUser().getId())) {
             throw new BusinessException("O comentário deve estar associado a um usuário válido.");
         }
-        if (comment.getGame() == null || comment.getGame().getId() == null) {
+        if (Objects.isNull(comment.getGame()) || Objects.isNull(comment.getGame().getId())) {
             throw new BusinessException("O comentário deve estar associado a um jogo válido.");
         }
     }
@@ -122,7 +126,7 @@ public class CommentServiceImpl implements CommentService {
      */
     private User validateUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Usuário com ID %d não encontrado.".formatted(userId)));
+                .orElseThrow(() -> new NotFoundException("Usuário com ID " + userId + " não encontrado."));
     }
 
     /**
@@ -130,6 +134,6 @@ public class CommentServiceImpl implements CommentService {
      */
     private Game validateGame(Long gameId) {
         return gameRepository.findById(gameId)
-                .orElseThrow(() -> new NotFoundException("Jogo com ID %d não encontrado.".formatted(gameId)));
+                .orElseThrow(() -> new NotFoundException("Jogo com ID " + gameId + " não encontrado."));
     }
 }

@@ -1,11 +1,13 @@
 package me.dio.gamehub.service.impl;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import me.dio.gamehub.domain.model.Platform;
 import me.dio.gamehub.domain.repository.PlatformRepository;
 import me.dio.gamehub.service.PlatformService;
@@ -37,7 +39,7 @@ public class PlatformServiceImpl implements PlatformService {
     @Override
     public Platform findById(Long id) {
         return platformRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Plataforma não encontrada"));
+                .orElseThrow(() -> new NotFoundException("Plataforma não encontrada com ID: " + id));
     }
 
     @Transactional
@@ -79,10 +81,21 @@ public class PlatformServiceImpl implements PlatformService {
         platformRepository.delete(existingPlatform);
     }
 
+    /**
+     * Método para validar os dados da plataforma.
+     */
     private void validatePlatform(Platform platform) {
-        if (platform == null || platform.getName() == null || platform.getName().isEmpty()) {
-            throw new BusinessException("O nome da plataforma não pode ser vazio.");
+        if (Objects.isNull(platform)) {
+            throw new BusinessException("A plataforma não pode ser nula.");
+        }
+        if (Objects.isNull(platform.getName()) || platform.getName().trim().isEmpty()) {
+            throw new BusinessException("O nome da plataforma não pode estar vazio.");
+        }
+        if (Objects.isNull(platform.getManufacturer()) || platform.getManufacturer().trim().isEmpty()) {
+            throw new BusinessException("O fabricante da plataforma não pode estar vazio.");
+        }
+        if (Objects.isNull(platform.getReleaseYear()) || platform.getReleaseYear() <= 0) {
+            throw new BusinessException("O ano de lançamento deve ser válido.");
         }
     }
-
 }

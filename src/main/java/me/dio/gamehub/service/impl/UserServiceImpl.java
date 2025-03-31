@@ -3,6 +3,7 @@ package me.dio.gamehub.service.impl;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,7 @@ import me.dio.gamehub.service.exception.NotFoundException;
 @Service
 public class UserServiceImpl implements UserService {
 
-    /**
-     * ID de usuário utilizado no Game Hub 2025.
-     * Por isso, vamos criar algumas regras para mantê-lo íntegro.
-     */
     private static final Long UNCHANGEABLE_USER_ID = 1L;
-
     private final UserRepository userRepository;
 
     public UserServiceImpl(UserRepository userRepository) {
@@ -38,8 +34,14 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public User findById(Long id) {
-        return this.userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + id));
+        
+        // Evitar carregar listas grandes desnecessariamente
+        Hibernate.initialize(user.getLibrary());
+        Hibernate.initialize(user.getEvaluations());
+        Hibernate.initialize(user.getComments());
+        return user;
     }
 
     @Transactional
@@ -74,7 +76,6 @@ public class UserServiceImpl implements UserService {
         validateUnchangeableId(id);
 
         User existingUser = findById(id);
-        // Exemplo de validação adicional (dependências):
         if (existingUser.hasActiveGames()) {
             throw new BusinessException("Usuário com jogos ativos não pode ser excluído.");
         }
@@ -82,30 +83,27 @@ public class UserServiceImpl implements UserService {
         this.userRepository.delete(existingUser);
     }
 
-    /**
-     * Método para validar dados do usuário.
-     */
     private void validateUser(User user) {
         if (user == null) {
             throw new BusinessException("Usuário não pode ser nulo.");
         }
-        if (user.getName() == null || user.getName().isEmpty()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             throw new BusinessException("O nome do usuário não pode ser vazio.");
         }
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
             throw new BusinessException("O e-mail do usuário não pode ser vazio.");
         }
-        if (!Pattern.matches("^[\\w-.]+@[\\w-]+\\.[a-z]{2,4}$", user.getEmail())) {
+        if (!Pattern.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", user.getEmail())) {
             throw new BusinessException("Formato de e-mail inválido.");
+        }
+        if (user.getPassword() == null || user.getPassword().length() < 6) {
+            throw new BusinessException("A senha deve ter pelo menos 6 caracteres.");
         }
     }
 
-    /**
-     * Método para validar IDs imutáveis.
-     */
     private void validateUnchangeableId(Long id) {
         if (UNCHANGEABLE_USER_ID.equals(id)) {
-            throw new BusinessException("Este usuário não pode ser modificado ou excluído.");
+            throw new BusinessException("Usuário com ID %d não pode ser modificado ou excluído.".formatted(id));
         }
     }
 

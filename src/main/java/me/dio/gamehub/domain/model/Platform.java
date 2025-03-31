@@ -2,17 +2,15 @@ package me.dio.gamehub.domain.model;
 
 import java.util.List;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Entity(name = "tb_platform")
+@NoArgsConstructor
+@Entity(name = "tb_platforms") // Nome ajustado para plural
 public class Platform {
 
     @Id 
@@ -20,15 +18,18 @@ public class Platform {
     private Long id;
 
     @NotBlank
+    @Column(nullable = false, unique = true)
     private String name;
 
     @NotBlank
+    @Column(nullable = false)
     private String manufacturer;
 
     @Min(1970)
+    @Column(nullable = false)
     private int releaseYear;
 
-    @ManyToMany(mappedBy = "platforms")
+    @ManyToMany(mappedBy = "platforms", fetch = FetchType.LAZY)
     private List<Game> games;
 
     public boolean hasAssociatedGames() {

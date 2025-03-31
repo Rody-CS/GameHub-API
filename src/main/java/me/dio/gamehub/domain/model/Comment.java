@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -37,8 +36,4 @@ public class Comment {
 
     @Column(nullable = false)
     private LocalDate commentDate = LocalDate.now();
-
-    @OneToOne
-    @JoinColumn(name = "evaluation_id", nullable = true)
-    private Evaluation evaluation; // Relacionamento opcional com avaliação
 }

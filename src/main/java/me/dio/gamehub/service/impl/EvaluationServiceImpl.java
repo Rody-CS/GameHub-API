@@ -33,14 +33,20 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Transactional(readOnly = true)
     @Override
     public Page<Evaluation> findAll(Pageable pageable) {
-        return this.evaluationRepository.findAll(pageable);
+        return evaluationRepository.findAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Evaluation> findAll() {
+        return evaluationRepository.findAll();
     }
 
     @Transactional(readOnly = true)
     @Override
     public Evaluation findById(Long id) {
-        return this.evaluationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Avaliação com ID %d não encontrada.".formatted(id)));
+        return evaluationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Avaliação com ID %d não encontrada.", id)));
     }
 
     @Transactional
@@ -48,15 +54,21 @@ public class EvaluationServiceImpl implements EvaluationService {
     public Evaluation create(Evaluation evaluationToCreate) {
         validateEvaluation(evaluationToCreate);
 
-        // Valida dependências
-        User user = validateUser(evaluationToCreate.getUser().getId());
-        Game game = validateGame(evaluationToCreate.getGame().getId());
+        Long userId = evaluationToCreate.getUser().getId();
+        Long gameId = evaluationToCreate.getGame().getId();
 
-        // Associa a avaliação ao usuário e ao jogo
+        // Busca usuário e jogo apenas uma vez
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("Usuário com ID %d não encontrado.", userId)));
+
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new NotFoundException(String.format("Jogo com ID %d não encontrado.", gameId)));
+
+        // Associa entidades
         evaluationToCreate.setUser(user);
         evaluationToCreate.setGame(game);
 
-        return this.evaluationRepository.save(evaluationToCreate);
+        return evaluationRepository.save(evaluationToCreate);
     }
 
     @Transactional
@@ -65,28 +77,32 @@ public class EvaluationServiceImpl implements EvaluationService {
         Evaluation existingEvaluation = findById(id);
         validateEvaluation(evaluationToUpdate);
 
-        // Atualiza atributos modificáveis
         existingEvaluation.setNota(evaluationToUpdate.getNota());
-        return this.evaluationRepository.save(existingEvaluation);
+
+        return evaluationRepository.save(existingEvaluation);
     }
 
     @Transactional
     @Override
     public void delete(Long id) {
         Evaluation existingEvaluation = findById(id);
-        this.evaluationRepository.delete(existingEvaluation);
+        evaluationRepository.delete(existingEvaluation);
     }
 
     @Transactional(readOnly = true)
     public Page<Evaluation> findByGameId(Long gameId, Pageable pageable) {
-        Game game = validateGame(gameId);
-        return this.evaluationRepository.findByGameId(game.getId(), pageable);
+        if (!gameRepository.existsById(gameId)) {
+            throw new NotFoundException(String.format("Jogo com ID %d não encontrado.", gameId));
+        }
+        return evaluationRepository.findByGameId(gameId, pageable);
     }
 
     @Transactional(readOnly = true)
     public Page<Evaluation> findByUserId(Long userId, Pageable pageable) {
-        User user = validateUser(userId);
-        return this.evaluationRepository.findByUserId(user.getId(), pageable);
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException(String.format("Usuário com ID %d não encontrado.", userId));
+        }
+        return evaluationRepository.findByUserId(userId, pageable);
     }
 
     /**
@@ -96,7 +112,8 @@ public class EvaluationServiceImpl implements EvaluationService {
         if (evaluation == null) {
             throw new BusinessException("A avaliação não pode ser nula.");
         }
-        if (evaluation.getNota() < 0 || evaluation.getNota() > 10) {
+        Integer nota = evaluation.getNota();
+        if (nota == null || nota < 0 || nota > 10) {
             throw new BusinessException("A nota da avaliação deve estar entre 0 e 10.");
         }
         if (evaluation.getUser() == null || evaluation.getUser().getId() == null) {
@@ -105,26 +122,5 @@ public class EvaluationServiceImpl implements EvaluationService {
         if (evaluation.getGame() == null || evaluation.getGame().getId() == null) {
             throw new BusinessException("A avaliação deve estar associada a um jogo válido.");
         }
-    }
-
-    /**
-     * Valida a existência de um usuário.
-     */
-    private User validateUser(Long userId) {
-        return this.userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Usuário com ID %d não encontrado.".formatted(userId)));
-    }
-
-    /**
-     * Valida a existência de um jogo.
-     */
-    private Game validateGame(Long gameId) {
-        return this.gameRepository.findById(gameId)
-                .orElseThrow(() -> new NotFoundException("Jogo com ID %d não encontrado.".formatted(gameId)));
-    }
-
-    @Override
-    public List<Evaluation> findAll() {
-        return this.evaluationRepository.findAll();
     }
 }
