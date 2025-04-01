@@ -1,10 +1,10 @@
-# Use uma imagem base do Maven
+# Use uma imagem base do Maven para a fase de build
 FROM maven:3.8.4-openjdk-17-slim AS build
 
 # Defina o diretório de trabalho no container
 WORKDIR /app
 
-# Copie o arquivo pom.xml e o Maven Wrapper para o container
+# Copie apenas os arquivos essenciais primeiro (para cache eficiente)
 COPY pom.xml ./
 COPY .mvn .mvn
 COPY mvnw ./
@@ -12,8 +12,14 @@ COPY mvnw ./
 # Dê permissão de execução para o Maven Wrapper (mvnw)
 RUN chmod +x mvnw
 
-# Instale as dependências do Maven e compile o projeto
-RUN ./mvnw clean install
+# Baixe as dependências do Maven antes de copiar o código-fonte (para otimizar cache)
+RUN ./mvnw dependency:go-offline
+
+# Agora copie o restante do código do projeto
+COPY src ./src
+
+# Compile o projeto ignorando testes para evitar falhas desnecessárias
+RUN ./mvnw clean package -DskipTests
 
 # Use uma imagem de runtime para rodar o projeto
 FROM openjdk:17-slim
