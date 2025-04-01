@@ -33,7 +33,7 @@ public class LibraryServiceImpl implements LibraryService {
 
         Long userId = library.getUser().getId();
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Usuário com ID %d não encontrado.", userId)));
+                .orElseThrow(() -> new NotFoundException("Usuário com ID %d não encontrado.".formatted(userId)));
 
         library.setUser(user);
         return libraryRepository.save(library);
@@ -59,7 +59,7 @@ public class LibraryServiceImpl implements LibraryService {
     @Override
     public Library findById(Long id) {
         return libraryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Biblioteca com ID %d não encontrada.", id)));
+                .orElseThrow(() -> new NotFoundException("Biblioteca com ID %d não encontrada.".formatted(id)));
     }
 
     @Transactional(readOnly = true)

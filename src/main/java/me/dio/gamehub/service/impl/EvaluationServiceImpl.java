@@ -46,7 +46,7 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Override
     public Evaluation findById(Long id) {
         return evaluationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(String.format("Avaliação com ID %d não encontrada.", id)));
+                .orElseThrow(() -> new NotFoundException("Avaliação com ID %d não encontrada.".formatted(id)));
     }
 
     @Transactional
@@ -59,10 +59,10 @@ public class EvaluationServiceImpl implements EvaluationService {
 
         // Busca usuário e jogo apenas uma vez
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("Usuário com ID %d não encontrado.", userId)));
+                .orElseThrow(() -> new NotFoundException("Usuário com ID %d não encontrado.".formatted(userId)));
 
         Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new NotFoundException(String.format("Jogo com ID %d não encontrado.", gameId)));
+                .orElseThrow(() -> new NotFoundException("Jogo com ID %d não encontrado.".formatted(gameId)));
 
         // Associa entidades
         evaluationToCreate.setUser(user);
@@ -92,7 +92,7 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Transactional(readOnly = true)
     public Page<Evaluation> findByGameId(Long gameId, Pageable pageable) {
         if (!gameRepository.existsById(gameId)) {
-            throw new NotFoundException(String.format("Jogo com ID %d não encontrado.", gameId));
+            throw new NotFoundException("Jogo com ID %d não encontrado.".formatted(gameId));
         }
         return evaluationRepository.findByGameId(gameId, pageable);
     }
@@ -100,7 +100,7 @@ public class EvaluationServiceImpl implements EvaluationService {
     @Transactional(readOnly = true)
     public Page<Evaluation> findByUserId(Long userId, Pageable pageable) {
         if (!userRepository.existsById(userId)) {
-            throw new NotFoundException(String.format("Usuário com ID %d não encontrado.", userId));
+            throw new NotFoundException("Usuário com ID %d não encontrado.".formatted(userId));
         }
         return evaluationRepository.findByUserId(userId, pageable);
     }
