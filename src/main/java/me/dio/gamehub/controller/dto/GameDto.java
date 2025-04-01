@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import me.dio.gamehub.domain.model.Game;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,10 @@ public record GameDto(
                 game.getGenre(),
                 game.getDeveloper(),
                 game.getReleaseYear(),
-                game.getPlatforms().stream().map(platform -> platform.getId()).collect(Collectors.toList())
+                // Verifica se a lista de plataformas é nula, e se for, inicializa com uma lista vazia
+                game.getPlatforms() != null ? 
+                    game.getPlatforms().stream().map(platform -> platform.getId()).collect(Collectors.toList()) : 
+                    new ArrayList<>()
         );
     }
 

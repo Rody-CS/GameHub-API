@@ -1,5 +1,6 @@
 package me.dio.gamehub.domain.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -31,9 +32,9 @@ public class Game {
     @Column(nullable = false)
     private int releaseYear;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "tb_game_platform", joinColumns = @JoinColumn(name = "game_id"), inverseJoinColumns = @JoinColumn(name = "platform_id"))
-    private List<Platform> platforms;
+    private List<Platform> platforms= new ArrayList<>();
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Evaluation> evaluations;

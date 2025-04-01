@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
     public User findById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado com ID: " + id));
-        
+
         // Evitar carregar listas grandes desnecessariamente
         Hibernate.initialize(user.getLibrary());
         Hibernate.initialize(user.getEvaluations());
@@ -96,6 +96,7 @@ public class UserServiceImpl implements UserService {
         if (!Pattern.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", user.getEmail())) {
             throw new BusinessException("Formato de e-mail inválido.");
         }
+        System.out.println("Senha recebida: " + user.getPassword() + " | Tamanho: " + user.getPassword().length());
         if (user.getPassword() == null || user.getPassword().length() < 6) {
             throw new BusinessException("A senha deve ter pelo menos 6 caracteres.");
         }

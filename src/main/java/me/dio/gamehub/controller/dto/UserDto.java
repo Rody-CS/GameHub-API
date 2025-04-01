@@ -12,6 +12,7 @@ public record UserDto(
         Long id,
         String name,
         String email,
+        String password,
         List<LibraryDto> library,  // Relacionamento com jogos na biblioteca do usuário
         List<EvaluationDto> evaluations,
         List<CommentDto> comments) {
@@ -24,6 +25,7 @@ public record UserDto(
             model.getId(),
             model.getName(),
             model.getEmail(),
+            model.getPassword(),
             ofNullable(model.getLibrary()).orElse(emptyList()).stream().map(LibraryDto::new).collect(Collectors.toList()),
             ofNullable(model.getEvaluations()).orElse(emptyList()).stream().map(EvaluationDto::new).collect(Collectors.toList()),
             ofNullable(model.getComments()).orElse(emptyList()).stream().map(CommentDto::new).collect(Collectors.toList())
@@ -38,6 +40,7 @@ public record UserDto(
         model.setId(this.id);
         model.setName(this.name);
         model.setEmail(this.email);
+        model.setPassword(this.password);
         model.setLibrary(
             ofNullable(this.library).orElse(emptyList()).stream().map(LibraryDto::toModel).collect(Collectors.toList())
         );
