@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@OpenAPIDefinition(servers = {@Server(url = "/", description = "Default server URL")})
 @Configuration
 @EnableTransactionManagement
 @SpringBootApplication
