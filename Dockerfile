@@ -33,5 +33,5 @@ COPY --from=build /app/target/gamehub-0.0.1-SNAPSHOT.jar app.jar
 # Exponha a porta que seu aplicativo vai rodar
 EXPOSE 8080
 
-# Comando para rodar a aplicação Java
-CMD ["java", "-jar", "app.jar", "--server.port=${PORT}"]
+# Comando para rodar a aplicação Java (usando shell para interpretar $PORT)
+CMD java -Dserver.port=$PORT -jar app.jar
