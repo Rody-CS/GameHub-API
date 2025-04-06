@@ -27,8 +27,8 @@ FROM openjdk:17-slim
 # Defina o diretório de trabalho
 WORKDIR /app
 
-# Copie o JAR compilado para a imagem final
-COPY --from=build /app/target/*.jar app.jar
+# Copie o JAR compilado para a imagem final (nome exato do arquivo)
+COPY --from=build /app/target/gamehub-0.0.1-SNAPSHOT.jar app.jar
 
 # Exponha a porta que seu aplicativo vai rodar
 EXPOSE 8080
