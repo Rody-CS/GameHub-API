@@ -1,29 +1,37 @@
-# Etapa 1: Build com Maven
+# Use uma imagem base do Maven para a fase de build
 FROM maven:3.8.4-openjdk-17-slim AS build
 
+# Defina o diretório de trabalho no container
 WORKDIR /app
 
-# Copiar arquivos essenciais primeiro para otimizar o cache
+# Copie apenas os arquivos essenciais primeiro (para cache eficiente)
 COPY pom.xml ./
 COPY .mvn .mvn
 COPY mvnw ./
+
+# Dê permissão de execução para o Maven Wrapper (mvnw)
 RUN chmod +x mvnw
+
+# Baixe as dependências do Maven antes de copiar o código-fonte (para otimizar cache)
 RUN ./mvnw dependency:go-offline
 
-# Copiar o restante do código e empacotar
+# Agora copie o restante do código do projeto
 COPY src ./src
+
+# Compile o projeto ignorando testes para evitar falhas desnecessárias
 RUN ./mvnw clean package -DskipTests
 
-# Etapa 2: Imagem final para rodar o app
+# Use uma imagem de runtime para rodar o projeto
 FROM openjdk:17-slim
 
+# Defina o diretório de trabalho
 WORKDIR /app
 
-# Copia o JAR compilado
+# Copie o JAR compilado para a imagem final (nome exato do arquivo)
 COPY --from=build /app/target/gamehub-0.0.1-SNAPSHOT.jar app.jar
 
-# Expor a porta usada pela aplicação
+# Exponha a porta que seu aplicativo vai rodar
 EXPOSE 8080
 
-# Iniciar o app com definição de memória e leitura da variável de porta do Railway
-CMD sh -c "java -Xms256m -Xmx512m -Dserver.port=\$PORT -jar app.jar"
+# Comando para rodar a aplicação Java
+CMD ["sh", "-c", "java -jar app.jar --server.port=\${PORT}"]
