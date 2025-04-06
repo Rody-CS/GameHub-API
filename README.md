@@ -135,6 +135,14 @@ A API oferece diversas funcionalidades para o gerenciamento de jogos:
 
 ---
 
+## 📚 Documentação Interativa
+
+Acesse a documentação completa da API em:
+
+🔗 https://gamehub-api.up.railway.app/swagger-ui.html
+
+---
+
 ## 🤝 Como Contribuir
 
 Se quiser contribuir para o projeto, siga estas etapas:
